@@ -20,20 +20,27 @@ function Row(props) {
   );
 }
 
+function getConfiguration(picture){
+  const configuration = [];
+  const s3Path = "https://photo-puzzle-picture.s3.amazonaws.com/";
+  for (let j = 1; j <= 9; j++) {
+    configuration.push({value: j, path: s3Path+picture+'/'+j+'.png'});
+  }
+  return configuration;
+}
+
 class App extends React.Component {
 
   constructor(props) {
     super(props);
 
-    const configuration = [];
-
-    for (let j = 1; j <= 9; j++) {
-      configuration.push({value: j, path: 'img/'+j+'.png'});
-    }
-
+    let picture = "numbers";
+    
     this.state = {
+      pictures: ['butterfly', 'numbers'],
       active: null,
-      configuration: configuration,
+      picture: picture,
+      configuration: getConfiguration(picture),
     };
 
   }
@@ -68,13 +75,32 @@ class App extends React.Component {
     return this.state.configuration.findIndex((x) => x.value === imgVal);
   }
 
+  handleChange(e) {
+    let {name, value} = e.target;
+    this.setState({
+      picture: value,
+      configuration: getConfiguration(value),
+    });
+  }
+
   render() {
+    const options = this.state.pictures.map(pic => {
+      return (
+        <option value={pic}>{pic}</option>
+      );
+    });
+
     return (
       <html>
         <header class="App-header">
           <h1>Puzzle It</h1>
         </header>
         <body>
+          <div>
+            <select defaultValue={this.state.selectedPicture} onChange={this.handleChange.bind(this)}>
+              {options}
+            </select>
+          </div>     
           <div class="center">
             <div class="container" style={{display: 'inline-block'}}>
               <Row handleClick={(imgVal) => this.swapActiveImageWithSelectedImage(imgVal)} configRow={this.state.configuration.slice(0, 3)}/>
@@ -84,11 +110,8 @@ class App extends React.Component {
           </div>
         </body>
       </html>
-      
     );
   }
 }
-
-
 
 export default App;
